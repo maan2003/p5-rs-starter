@@ -13,3 +13,5 @@ globalThis.setup = async function() {
     await init();
     state = eventHandlers.setup();
 }
+
+new p5()
