@@ -1,7 +1,7 @@
 [package]
-name = "p5-starter"
+name = "{{project}}"
 version = "0.1.0"
-authors = ["Maan"]
+authors = ["{{author}}"]
 edition = "2018"
 
 [lib]
