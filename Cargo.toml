@@ -1,9 +1,7 @@
 [package]
-name= "p5-rs-st"
-# name = "{{project-name}}"
+name = "{{project-name}}"
 version = "0.1.0"
-authors = ["m"]
-# authors = ["{{authors}}"]
+authors = ["{{authors}}"]
 edition = "2018"
 
 [lib]
