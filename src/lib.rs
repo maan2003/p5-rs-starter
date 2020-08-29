@@ -2,7 +2,7 @@
 use p5_sys::*;
 
 // import the #[wasm_bindgen] annotation
-use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::prelude::*;
 
 // This is the state of sketch.
 #[wasm_bindgen]

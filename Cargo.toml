@@ -8,5 +8,5 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-p5-sys = "0.1"
+p5-sys = { git = "https://github.com/Maan2003/p5-rs" }
 wasm-bindgen = "0.2.67"
