@@ -15,7 +15,6 @@ pub struct State {
 #[wasm_bindgen]
 pub fn setup() -> State {
     createCanvas(400., 400.);
-    background(124.0);
     
     // you can remove return keyword because it is implied for
     // the last expresion at the end of the function
@@ -27,5 +26,6 @@ pub fn setup() -> State {
 #[wasm_bindgen]
 pub fn draw(state: &mut State) {
     state.x += 5.0;
+    background(124.0);
     rect(state.x, 30.0, 100.0, 150.0);
 }
