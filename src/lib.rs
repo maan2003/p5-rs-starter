@@ -25,7 +25,7 @@ pub fn setup() -> State {
 
 #[wasm_bindgen]
 pub fn draw(state: &mut State) {
-    state.x += 5.0;
     background(124.0);
+    state.x += 5.0;
     rect(state.x, 30.0, 100.0, 150.0);
 }
