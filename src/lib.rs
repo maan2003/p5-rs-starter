@@ -4,8 +4,8 @@ use p5_sys::*;
 // import the #[wasm_bindgen] annotation
 use wasm_bindgen::prelude::*;
 
-const CANVAS_HEIGHT: f64 = 400;
-const CANVAS_WIDTH : f64 = 400; 
+const CANVAS_HEIGHT: f64 = 400.0;
+const CANVAS_WIDTH : f64 = 400.0; 
 
 // This is the state of sketch.
 #[wasm_bindgen]
@@ -38,7 +38,7 @@ pub fn draw(state: &mut State) {
     state.x += state.vel; 
 
     //if the rectangle is outside/at the edge of the canvas...
-    if state.x + RECT_WIDTH >= CANVAS_WIDTH || state.x <= 0 { 
+    if state.x + RECT_WIDTH >= CANVAS_WIDTH || state.x <= 0.0 { 
         state.vel = -state.vel;
         //invert the direction.
         //makes the rectangle move in the opposite direction.
