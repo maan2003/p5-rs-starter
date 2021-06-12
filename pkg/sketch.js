@@ -55,6 +55,9 @@ function _assertClass(instance, klass) {
 */
 export function draw(state) {
     _assertClass(state, State);
+    if (state.ptr === 0) {
+        throw new Error('Attempt to use a moved value');
+    }
     wasm.draw(state.ptr);
 }
 
@@ -65,8 +68,26 @@ function addHeapObject(obj) {
     const idx = heap_next;
     heap_next = heap[idx];
 
+    if (typeof(heap_next) !== 'number') throw new Error('corrupt heap');
+
     heap[idx] = obj;
     return idx;
+}
+
+function logError(f, args) {
+    try {
+        return f.apply(this, args);
+    } catch (e) {
+        let error = (function () {
+            try {
+                return e instanceof Error ? `${e.message}\n\nStack:\n${e.stack}` : e.toString();
+            } catch(_) {
+                return "<failed to stringify thrown value>";
+            }
+        }());
+        console.error("wasm-bindgen: imported JS function that was not marked as `catch` threw an error:", error);
+        throw e;
+    }
 }
 /**
 */
@@ -75,6 +96,10 @@ export const BEGIN_KIND = Object.freeze({ Points:0,"0":"Points",Lines:1,"1":"Lin
 */
 export class State {
 
+    constructor() {
+        throw new Error('cannot invoke `new` directly');
+    }
+
     static __wrap(ptr) {
         const obj = Object.create(State.prototype);
         obj.ptr = ptr;
@@ -82,17 +107,21 @@ export class State {
         return obj;
     }
 
-    free() {
+    __destroy_into_raw() {
         const ptr = this.ptr;
         this.ptr = 0;
 
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
         wasm.__wbg_state_free(ptr);
     }
 }
 
 async function load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
-
         if (typeof WebAssembly.instantiateStreaming === 'function') {
             try {
                 return await WebAssembly.instantiateStreaming(module, imports);
@@ -111,7 +140,6 @@ async function load(module, imports) {
         return await WebAssembly.instantiate(bytes, imports);
 
     } else {
-
         const instance = await WebAssembly.instantiate(module, imports);
 
         if (instance instanceof WebAssembly.Instance) {
@@ -125,19 +153,19 @@ async function load(module, imports) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = import.meta.url.replace(/\.js$/, '_bg.wasm');
+        input = new URL('sketch_bg.wasm', import.meta.url);
     }
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbg_background_f5e9bfbccd6520ae = typeof background == 'function' ? background : notDefined('background');
+    imports.wbg.__wbg_createCanvas_8ada51b3f86f9ec2 = function() { return logError(function (arg0, arg1) {
+        var ret = createCanvas(arg0, arg1);
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_rect_e371866396a23b1f = typeof rect == 'function' ? rect : notDefined('rect');
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
-    imports.wbg.__wbg_background_fc0280c50b40ecae = typeof background == 'function' ? background : notDefined('background');
-    imports.wbg.__wbg_createCanvas_8db4d7e3c37907a8 = function(arg0, arg1) {
-        var ret = createCanvas(arg0, arg1);
-        return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_rect_f711f8f9bdd53c1a = typeof rect == 'function' ? rect : notDefined('rect');
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
     };
@@ -145,6 +173,8 @@ async function init(input) {
     if (typeof input === 'string' || (typeof Request === 'function' && input instanceof Request) || (typeof URL === 'function' && input instanceof URL)) {
         input = fetch(input);
     }
+
+
 
     const { instance, module } = await load(await input, imports);
 
